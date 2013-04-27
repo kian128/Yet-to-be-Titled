@@ -1,0 +1,7 @@
+vsync=false
+resizable=true
+maxfps=120
+fov=55
+renderNear=0.01
+renderFar=300
+cameraDistance=20
