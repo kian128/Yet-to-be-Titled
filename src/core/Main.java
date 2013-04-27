@@ -30,6 +30,7 @@ public class Main {
 	Lighting lighting = new Lighting();
 	Textures textures = new Textures();
 	Fonts fonts = new Fonts();
+	//dun i dun goofed?
 	
 	public void init() {
 		options.loadConfig();
