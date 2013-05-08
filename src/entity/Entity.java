@@ -10,6 +10,8 @@ public class Entity {
 	protected float xWidth, height, zWidth;
 	protected boolean isCollidable;
 	
+	private float lastY;
+	
 	protected Entity(float x, float y, float z, float xWidth, float height, float zWidth, boolean isCollidable) {
 		this.x = x;
 		this.y = y;
@@ -25,8 +27,7 @@ public class Entity {
 	}
 	
 	public void moveX(float speed) {
-		float newX = x;
-		newX += speed;
+		float newX = x + speed;
 		
 		boolean isColliding = false;
 		for(int n = 0; n < World.collidableList.size(); n++) {
@@ -40,23 +41,32 @@ public class Entity {
 		}
 	}
 	public void moveY(float speed) {
-		float newY = y;
-		newY += speed;
+		float newY = y + speed;
+		
+		EntityMob mob = (EntityMob) this;
+		
+		if(lastY != newY) {
+			mob.isOnGround = false;
+		}
 		
 		boolean isColliding = false;
 		for(int n = 0; n < World.collidableList.size(); n++) {
 			if(isPositionCollidingWithEntity(new Vector3f(x, newY, z), World.collidableList.get(n))) {
 				isColliding = true;
+				if(newY <= y) {
+					mob.isOnGround = true;
+				}
 			}
 		}
+		
+		lastY = newY;
 		
 		if(!isColliding) {
 			setY(newY);
 		}
 	}
 	public void moveZ(float speed) {
-		float newZ = z;
-		newZ += speed;
+		float newZ = z + speed;
 		
 		boolean isColliding = false;
 		for(int n = 0; n < World.collidableList.size(); n++) {

@@ -9,6 +9,7 @@ import static org.lwjgl.util.glu.GLU.*;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
@@ -21,6 +22,7 @@ import core.Timing;
 import core.World;
 import entity.Entity;
 import entity.EntityMob;
+import gui.GuiMenuMain;
 
 public class Renderer {
 	
@@ -110,20 +112,39 @@ public class Renderer {
 	}
 	
 	public void render2D() {
-		Fonts.drawString(10, 10, "FPS: " + Timing.displayfps);
-		Fonts.drawString(10, 30, "TEST STRING");
+		switch(Main.gameState) {
+			case MENU_MAIN:
+				Main.guiMenuMain.update();
+				break;
+			case MENU_OPTIONS:
+				Main.guiMenuOptions.update();
+				break;
+			case MENU_UPDATE:
+				Main.guiMenuUpdate.update();
+				break;
+		}
+		
+		switch(Main.hudState) {
+			case HUD_DEV:
+				Fonts.drawString(10, 10, "white", "FPS: " + Timing.displayfps);
+				break;
+		}
 	}
 	
 	public void render3D() {
-		for(int n = 0; n < World.mobList.size(); n++) {
-			if(isInRenderDistanceFromPlayer(World.mobList.get(n).getX(), World.mobList.get(n).getY(), World.mobList.get(n).getZ())) {
-				World.mobList.get(n).render();
-			}
-		}
-		for(int n = 0; n < World.terrainList.size(); n++) {
-			if(isInRenderDistanceFromPlayer(World.terrainList.get(n).getX(), World.terrainList.get(n).getY(), World.terrainList.get(n).getZ())) {
-				World.terrainList.get(n).render();
-			}
+		switch(Main.gameState) {
+			case GAME_MAIN:
+				for(int n = 0; n < World.mobList.size(); n++) {
+					if(isInRenderDistanceFromPlayer(World.mobList.get(n).getX(), World.mobList.get(n).getY(), World.mobList.get(n).getZ())) {
+						World.mobList.get(n).render();
+					}
+				}
+				for(int n = 0; n < World.terrainList.size(); n++) {
+					if(isInRenderDistanceFromPlayer(World.terrainList.get(n).getX(), World.terrainList.get(n).getY(), World.terrainList.get(n).getZ())) {
+						World.terrainList.get(n).render();
+					}	
+				}
+				break;
 		}
 		
 		/*glEnableClientState(GL_VERTEX_ARRAY);
@@ -273,7 +294,7 @@ public class Renderer {
 		glTexGen(GL_Q, GL_EYE_PLANE, textureBuffer);
 	}
 	
-	public void renderShadowMap() {
+	public void renderShadowMap(long delta) {
 		FloatBuffer lightModelView = BufferUtils.createFloatBuffer(16);
 		FloatBuffer lightProjection = BufferUtils.createFloatBuffer(16);
 		

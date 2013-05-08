@@ -15,6 +15,14 @@ import org.newdawn.slick.opengl.PNGDecoder.Format;
 
 public class Textures {
 	
+	public static int TEX_GRASS;
+	public static int TEX_CRATE;
+	
+	public void initTextures() {
+		TEX_GRASS = loadTexture("res/textures/grass.png");
+		TEX_CRATE = loadTexture("res/textures/crate.png");
+	}
+	
 	public int loadTexture(String fileDir) {
 		int texture = glGenTextures();
 		InputStream in = null;

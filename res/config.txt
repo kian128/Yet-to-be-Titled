@@ -1,7 +1,10 @@
-vsync=false
-resizable=true
-maxfps=120
-fov=55
-renderNear=0.01
+#Sat May 04 17:50:07 BST 2013
+resizable=false
+zNear=0.01
 renderFar=300
-cameraDistance=20
+fov=55
+vsync=false
+zFar=100.0
+cameraDistance=20.0
+maxfps=120
+renderNear=0.01
