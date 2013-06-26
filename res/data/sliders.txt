@@ -1,3 +1,0 @@
-#Sat May 04 17:50:07 BST 2013
-options_fps=20
-options_fov=10

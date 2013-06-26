@@ -2,14 +2,16 @@ package core;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.util.vector.Vector3f;
 
 import render.ModelCube;
 import render.Textures;
+import world.World;
 import entity.EntityBlock;
 import entity.EntityMob;
-import gui.GuiButton;
-import gui.GuiSlider;
+import entity.EntityPresets;
+import gui.Gui;
+import gui.GuiMenuMain;
+import gui.GuiMenuPause;
 
 public class Input {
 	
@@ -34,107 +36,194 @@ public class Input {
 	private int key_LookRight = Keyboard.KEY_RIGHT;
 	
 	private int key_ToggleDev = Keyboard.KEY_F3;
+	private int key_ToggleFlying = Keyboard.KEY_F;
 	
 	public void update(long delta) {
-		if(Main.gameState == Main.GameState.GAME_MAIN) {
-			player = Main.player;
+		player = Main.player;
 		
-			if(Keyboard.isKeyDown(key_Forward)) {
-				player.moveZ(-player.getSpeed() * delta);
-			}
+		if(Main.isInMenu())  {
+			Main.isPaused = true;
+		}
 		
-			if(Keyboard.isKeyDown(key_Backward)) {
-				player.moveZ(player.getSpeed() * delta);
-			}
+		if(Main.isInGame() && !Main.isPaused) updateInGame(delta);
+		if(Main.isPaused) updateInMenu(delta);
+		updateAll(delta);
 		
-			if(Keyboard.isKeyDown(key_Left)) {
-				player.moveX(-player.getSpeed() * delta);
-			}
-		
-			if(Keyboard.isKeyDown(key_Right)) {
-				player.moveX(player.getSpeed() * delta);
-			}
-		
-			if(Keyboard.isKeyDown(key_Jump)) {
-				player.jump(World.gravity * 0.0013f * delta);
-			}
-			if(Keyboard.isKeyDown(key_Down)) {
-				player.moveY(-player.getSpeed() * delta);
-			}
-		
-			if(Keyboard.isKeyDown(key_LookUp)) {
-				camera.rotX += camera.rotSpeed * delta;
-			}
-			if(Keyboard.isKeyDown(key_LookDown)) {
-				camera.rotX -= camera.rotSpeed * delta;
-			}
-			if(Keyboard.isKeyDown(key_LookLeft)) {
-				camera.rotY += camera.rotSpeed * delta;
-			}
-			if(Keyboard.isKeyDown(key_LookRight)) {
-				camera.rotY -= camera.rotSpeed * delta;
-			}
+		while(Mouse.next()) {
+			if(Main.isInGame() && !Main.isPaused) updateInGameMouseNext(delta);
+			if(Main.isPaused) updateInMenuMouseNext(delta);
+			updateAllMouseNext(delta);
 		}
 		
 		while(Keyboard.next()) {
-			if(Main.gameState == Main.GameState.GAME_MAIN) {
-				if(Keyboard.isKeyDown(Keyboard.KEY_RETURN)) {
-					new EntityBlock(player.getX(), player.getY(), player.getZ(), 0.8f, 0.8f, 0.8f, false, new ModelCube(), Textures.TEX_CRATE);
-					//Main.renderer.updateTerrain();
-					System.out.println("Placed new block at (" + player.getX() + ", " + player.getY() + ", " + player.getZ() + ")");
-				}
-			
-				if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-					Main.gameState = Main.GameState.MENU_MAIN;
-				}
-			
-				if(Keyboard.isKeyDown(Keyboard.KEY_BACK)) {
-					camera.reset();
-				}
+			if(Main.isInGame() && !Main.isPaused) updateInGameKeyboardNext(delta);
+			if(Main.isPaused) updateInMenuKeyboardNext(delta);
+			updateAllKeyboardNext(delta);
+		}
+	}
+	
+	public void updateInGame(long delta) {
+		if(Keyboard.isKeyDown(key_Forward)) {
+			if(!Keyboard.isKeyDown(key_Down)) player.moveZ(-player.getSpeed() * delta);
+			World.playerDirection = "north";
+		}
+	
+		if(Keyboard.isKeyDown(key_Backward)) {
+			if(!Keyboard.isKeyDown(key_Down)) player.moveZ(player.getSpeed() * delta);
+			World.playerDirection = "south";
+		}
+	
+		if(Keyboard.isKeyDown(key_Left)) {
+			if(!Keyboard.isKeyDown(key_Down)) player.moveX(-player.getSpeed() * delta);
+			World.playerDirection = "west";
+		}
+	
+		if(Keyboard.isKeyDown(key_Right)) {
+			if(!Keyboard.isKeyDown(key_Down)) player.moveX(player.getSpeed() * delta);
+			World.playerDirection = "east";
+		}
+	
+		if(Keyboard.isKeyDown(key_Jump)) {
+			if(player.isFlying) {
+				player.moveY(player.getSpeed() * delta);
+			} else {
+				player.jump(0.21f);
+			}
+		}
+		if(Keyboard.isKeyDown(key_Down)) {
+			if(player.isFlying) {
+				player.moveY(-player.getSpeed() * delta);
+			}
+		}
+	
+		if(Keyboard.isKeyDown(key_LookUp)) {
+			Main.npc.moveZ(player.getSpeed() * delta);
+			camera.rotY += camera.rotSpeed * delta * 0.5f;
+		}
+		if(Keyboard.isKeyDown(key_LookDown)) {
+			Main.npc.moveZ(-player.getSpeed() * delta);
+			camera.rotY -= camera.rotSpeed * delta * 0.5f;
+		}
+		if(Keyboard.isKeyDown(key_LookLeft)) {
+			for(int n = 0; n < World.mobList.size(); n++) {
+				World.mobList.get(n).rotate(camera.rotSpeed * delta);
 			}
 			
-			if(Main.gameState == Main.GameState.MENU_MAIN || Main.gameState == Main.GameState.MENU_OPTIONS || Main.gameState == Main.GameState.MENU_UPDATE) {
-				if(Keyboard.isKeyDown(Keyboard.KEY_RETURN)) {
-					if(Main.guiCurrent.componentActive.getClass() == GuiButton.class) {
-						Main.guiCurrent.activateButton();
-					}
-				}
-			
-				if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
-					Main.guiCurrent.selectComponentUp();
-				}
-			
-				if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
-					Main.guiCurrent.selectComponentDown();
-				}
-				
-				if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
-					Main.guiCurrent.activateSliderDown();
-				}
-				
-				if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
-					Main.guiCurrent.activateSliderUp();
-				}
+			for(int n = 0; n < World.terrainList.size(); n++) {
+				World.terrainList.get(n).rotate(camera.rotSpeed * delta);
 			}
 			
-			if(Keyboard.isKeyDown(key_ToggleDev)) {
-				if(Main.hudState == Main.HudState.CLEAR) {
-					Main.hudState = Main.HudState.HUD_DEV;
-				} else {
-					Main.hudState = Main.HudState.CLEAR;
-				}
+			//camera.rotY += camera.rotSpeed * delta * 0.5f;
+		}
+		if(Keyboard.isKeyDown(key_LookRight)) {
+			for(int n = 0; n < World.mobList.size(); n++) {
+				World.mobList.get(n).rotate(-camera.rotSpeed * delta);
 			}
+			
+			for(int n = 0; n < World.terrainList.size(); n++) {
+				World.terrainList.get(n).rotate(-camera.rotSpeed * delta);
+			}
+			
+			//camera.rotY -= camera.rotSpeed * delta * 0.5f;
+		}
+	}
+	
+	public void updateInGameKeyboardNext(long delta) {
+		if(Keyboard.isKeyDown(Keyboard.KEY_RETURN)) {
+			if(World.playerDirection == "north") {
+				EntityPresets.newBlockCrate(player.getX() + 0.1f, player.getY(), player.getZ() - 0.8f, 0.8f, 0.8f, 0.8f);
+			}
+			if(World.playerDirection == "south") {
+				EntityPresets.newBlockCrate(player.getX() + 0.1f, player.getY(), player.getZ() + player.getZWidth(), 0.8f, 0.8f, 0.8f);
+			}
+			if(World.playerDirection == "east") {
+				EntityPresets.newBlockCrate(player.getX() + player.getZWidth(), player.getY(), player.getZ() + 0.1f, 0.8f, 0.8f, 0.8f);
+			}
+			if(World.playerDirection == "west") {
+				EntityPresets.newBlockCrate(player.getX() - 0.8f, player.getY(), player.getZ() + 0.1f, 0.8f, 0.8f, 0.8f);
+			}
+			
+			System.out.println("Placed new block at (" + player.getX() + ", " + player.getY() + ", " + player.getZ() + ")");
 		}
 		
-		while(Mouse.next()) {
-			if(Main.gameState == Main.GameState.GAME_MAIN) {
-				int dWheel = Mouse.getDWheel();
-				if(dWheel > 0) {
-					camera.zoomIn();
-				} else if(dWheel < 0) {
-					camera.zoomOut();
-				}
+		if(Keyboard.isKeyDown(key_ToggleFlying)) {
+			player.isFlying = !player.isFlying;
+		}
+	
+		if(Keyboard.isKeyDown(Keyboard.KEY_BACK)) {
+			camera.reset();
+		}
+	}
+	
+	public void updateInGameMouseNext(long delta) {
+		int dWheel = Mouse.getDWheel();
+		if(dWheel > 0) {
+			camera.zoomIn();
+		} else if(dWheel < 0) {
+			camera.zoomOut();
+		}
+	}
+	
+	public void updateInMenu(long delta) {
+	}
+	
+	public void updateInMenuKeyboardNext(long delta) {
+		if(Keyboard.isKeyDown(Keyboard.KEY_RETURN)) {
+			Gui.guiCurrent.activateButton();
+		}
+	
+		if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+			Gui.guiCurrent.selectComponentUp();
+		}
+	
+		if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
+			Gui.guiCurrent.selectComponentDown();
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
+			Gui.guiCurrent.activateSliderDown();
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
+			Gui.guiCurrent.activateSliderUp();
+		}
+		
+		if(Character.isLetter(Keyboard.getEventCharacter())) {
+			Gui.guiCurrent.appendString(Character.toString(Keyboard.getEventCharacter()));
+		} else if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+			Gui.guiCurrent.appendString(" ");
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_BACK)) {
+			Gui.guiCurrent.shortenString(1);
+		}
+	}
+	
+	public void updateInMenuMouseNext(long delta) {
+		
+	}
+	
+	public void updateAll(long delta) {
+		
+	}
+	
+	public void updateAllKeyboardNext(long delta) {
+		if(Keyboard.isKeyDown(key_ToggleDev)) {
+			Main.showDev = !Main.showDev;
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) && Main.isInGame()) {
+			if(Main.isPaused) {
+				Gui.setCurrentGui(null);
+				Main.isPaused = false;
+			} else {
+				Gui.setCurrentGui(new GuiMenuPause());
+				Main.isPaused = true;
 			}
 		}
+	}
+	
+	public void updateAllMouseNext(long delta) {
+		
 	}
 }

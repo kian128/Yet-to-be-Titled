@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -39,20 +40,20 @@ public class GuiButton extends GuiComponent {
 	}
 	
 	@Override
-	public void renderShapes() {
+	public void renderShapes(long delta) {
 		if(isActive) {
-			Render2D.renderRectangle(x - activeBorderWidth, y - activeBorderWidth, width + activeBorderWidth * 2, height + activeBorderWidth * 2, activeBorderRed, activeBorderGreen, activeBorderBlue);
+			Render2D.renderRectangle(x - activeBorderWidth, y - activeBorderWidth, width + activeBorderWidth * 2, height + activeBorderWidth * 2, activeBorderRed, activeBorderGreen, activeBorderBlue, 1);
 		}
 		if(texture == 0) {
-			Render2D.renderRectangle(x, y, width, height, red / 1.5f, green / 1.5f, blue / 1.5f);
-			Render2D.renderRectangle(x + 2, y + 2, width - 4, height - 4, red, green, blue);
+			Render2D.renderRectangle(x, y, width, height, red / 1.5f, green / 1.5f, blue / 1.5f, 1);
+			Render2D.renderRectangle(x + 2, y + 2, width - 4, height - 4, red, green, blue, 1);
 		} else {
 			Render2D.renderTexturedRectangle(x, y, width, height, texture);
 		}
 	}
 	
 	@Override
-	public void renderText() {
-		Fonts.drawCenteredString(x + width / 2, y + height / 2 - 1, "black", s);
+	public void renderText(long delta) {
+		Fonts.drawCenteredString(Fonts.font_16_Black, x + width / 2, y + 3, s);
 	}
 }

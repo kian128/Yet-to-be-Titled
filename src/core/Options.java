@@ -8,22 +8,28 @@ import java.util.Properties;
 
 public class Options {
 	
-	public boolean vsync;
+	private static boolean vsync;
 	public boolean resizable;
 	private static int maxfps;
+	private static boolean lockedfps;
 	private static int fov;
 	public float zNear, zFar;
 	public float cameraDistance;
 	
+	public boolean dvsync = false;
+	public boolean dresizable = false;
+	public static int dmaxfps = 60;
+	public static boolean dLockedFramerate = false;
+	public static int dfov = 45;
+	public float dzNear = 0.01f, dzFar = 100f;
+	public float dcameraDistance = 19;
+	
 	private static Properties config;
-	private static Properties sliders;
 	
 	public void loadConfig() {
 		config = new Properties();
-		sliders = new Properties();
 		try {
 			config.load(new FileInputStream("res/config.txt"));
-			sliders.load(new FileInputStream("res/data/sliders.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -31,23 +37,11 @@ public class Options {
 		vsync = Boolean.parseBoolean(config.getProperty("vsync"));
 		resizable = Boolean.parseBoolean(config.getProperty("resizable"));
 		maxfps = Integer.parseInt(config.getProperty("maxfps"));
+		lockedfps = Boolean.parseBoolean(config.getProperty("lockedfps"));
 		fov = Integer.parseInt(config.getProperty("fov"));
 		zNear = Float.parseFloat(config.getProperty("renderNear"));
 		zFar = Float.parseFloat(config.getProperty("renderFar"));
 		cameraDistance = Float.parseFloat(config.getProperty("cameraDistance"));
-	}
-	
-	public void setSliderOffset(String slider, int value) {
-		sliders.setProperty(slider, Integer.toString(value));
-		try {
-			sliders.store(new FileOutputStream("res/data/sliders.txt"), null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public int getSliderOffset(String slider) {
-		return Integer.parseInt(sliders.getProperty(slider));
 	}
 	
 	public int getFov() {
@@ -66,6 +60,22 @@ public class Options {
 		setProperty("maxfps", Integer.toString(maxfps));
 	}
 	
+	public boolean getLockedfps() {
+		return lockedfps;
+	}
+	public void setLockedfps(boolean lockedfps) {
+		this.lockedfps = lockedfps;
+		setProperty("lockedfps", Boolean.toString(lockedfps));
+	}
+	
+	public boolean getVsync() {
+		return vsync;
+	}
+	public void setVsync(boolean vsync) {
+		this.vsync = vsync;
+		setProperty("vsync", Boolean.toString(vsync));
+	}
+	
 	public void setProperty(String property, String value) {
 		config.setProperty(property, value);
 		try {
@@ -76,17 +86,19 @@ public class Options {
 	}
 	
 	public void setDefault() {
-		vsync = false;
-		resizable = false;
-		maxfps = 120;
-		fov = 55;
-		zNear = 0.01f;
-		zFar = 100f;
-		cameraDistance = 20;
+		vsync = dvsync;
+		resizable = dresizable;
+		maxfps = dmaxfps;
+		lockedfps = dLockedFramerate;
+		fov = dfov;
+		zNear = dzNear;
+		zFar = dzFar;
+		cameraDistance = dcameraDistance;
 		
 		setProperty("vsync", Boolean.toString(vsync));
 		setProperty("resizable", Boolean.toString(resizable));
 		setProperty("maxfps", Integer.toString(maxfps));
+		setProperty("lockedFramerate", Boolean.toString(lockedfps));
 		setProperty("fov", Integer.toString(fov));
 		setProperty("zNear", Float.toString(zNear));
 		setProperty("zFar", Float.toString(zFar));

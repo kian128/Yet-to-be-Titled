@@ -1,36 +1,39 @@
 package render;
 
-import java.awt.Font;
-import java.io.InputStream;
+import java.awt.Color;
+import java.util.ArrayList;
 
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
-import org.newdawn.slick.util.ResourceLoader;
-
-import static org.lwjgl.opengl.GL11.*;
+import org.newdawn.slick.font.effects.Effect;
+import org.newdawn.slick.font.effects.ShadowEffect;
 
 public class Fonts {
 	
-	private static UnicodeFont font16White;
-	private static UnicodeFont font16Black;
+	public static UnicodeFont font_16_Black;
+	public static UnicodeFont font_16_Gray;
+	public static UnicodeFont font_16_White;
 	
 	public void initFonts() {
 		//java.awt.Font awtFont = new java.awt.Font("Monospaced Plain", java.awt.Font.PLAIN, 16);
 		try {
-			font16White = new UnicodeFont("res/fonts/font.ttf", 16, false, false);
-			font16Black = new UnicodeFont("res/fonts/font.ttf", 16, false, false);
+			font_16_Black = new UnicodeFont("res/fonts/font.ttf", 16, false, false);
+			font_16_Gray = new UnicodeFont("res/fonts/font.ttf", 16, false, false);
+			font_16_White = new UnicodeFont("res/fonts/font.ttf", 16, false, false);
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
-		initFont(font16White, java.awt.Color.white);
-		initFont(font16Black, java.awt.Color.black);
+		initFont(font_16_Black, new ColorEffect(Color.black));
+		initFont(font_16_Gray, new ColorEffect(Color.gray));
+		initFont(font_16_White, new ColorEffect(Color.white));
 	}
 	
-	private void initFont(UnicodeFont font, java.awt.Color color) {
+	private static void initFont(UnicodeFont font, Effect ... effects) {
 		try {
-			font.getEffects().add(new ColorEffect(color));
+			for(int n = 0; n < effects.length; n++) {
+				font.getEffects().add(effects[n]);
+			}
 			font.addAsciiGlyphs();
 			font.loadGlyphs();
 		} catch (Exception e) {
@@ -38,25 +41,12 @@ public class Fonts {
 		}
 	}
 	
-	public static void drawString(float x, float y, String color, String s) {
-		if(color == "white") {
-			font16White.drawString(x, y - 5, s);
-		}
-		if(color == "black") {
-			font16Black.drawString(x, y - 5, s);
-		}
+	public static void drawString(UnicodeFont font, float x, float y, String s) {
+		font.drawString(x, y, s);
 	}
 	
-	public static void drawCenteredString(float x, float y, String color, String s) {
-		if(color == "white") {
-			float stringWidth = font16White.getWidth(s);
-			float stringHeight = font16White.getHeight(s);
-			font16White.drawString(x - stringWidth / 2, y - stringHeight / 2, s);
-		}
-		if(color == "black") {
-			float stringWidth = font16Black.getWidth(s);
-			float stringHeight = font16Black.getHeight(s);
-			font16Black.drawString(x - stringWidth / 2, y - stringHeight / 2, s);
-		}
+	public static void drawCenteredString(UnicodeFont font, float x, float y, String s) {
+		float stringWidth = font.getWidth(s);
+		font.drawString(x - stringWidth / 2, y, s);
 	}
 }

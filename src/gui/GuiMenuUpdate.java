@@ -1,5 +1,7 @@
 package gui;
 
+import java.awt.Color;
+
 import render.Fonts;
 import core.Main;
 import core.Update;
@@ -12,6 +14,8 @@ public class GuiMenuUpdate extends Gui {
 	private boolean isUpdating;
 	
 	public GuiMenuUpdate() {
+		super();
+		
 		buttonYes = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 80, 100, 20, 1, 1, 1, "YES");
 		buttonYes.setActivation(new Runnable() {
 			public void run() {
@@ -24,7 +28,7 @@ public class GuiMenuUpdate extends Gui {
 		buttonNo = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 120, 100, 20, 1, 1, 1, "NO");
 		buttonNo.setActivation(new Runnable() {
 			public void run() {
-				Main.gameState = Main.GameState.MENU_MAIN;
+				setCurrentGui(new GuiMenuMain());
 			}
 		});
 		
@@ -34,15 +38,15 @@ public class GuiMenuUpdate extends Gui {
 	
 	@Override
 	public void renderText() {
-		Fonts.drawCenteredString(Main.screenWidth / 2, Main.screenHeight / 2 - 40, "white", "Are you sure you want to update?");
+		Fonts.drawCenteredString(Fonts.font_16_White, Main.screenWidth / 2, Main.screenHeight / 2 - 40, "Are you sure you want to update?");
 	}
 	
 	@Override
-	public void update() {
+	public void update(long delta) {
 		if(!isUpdating) {
-			super.update();
+			super.update(delta);
 		} else {
-			Fonts.drawCenteredString(Main.screenWidth / 2, Main.screenHeight / 2 - 40, "white", Update.status);
+			Fonts.drawCenteredString(Fonts.font_16_White, Main.screenWidth / 2, Main.screenHeight / 2 - 40, Update.status);
 		}
 	}
 }

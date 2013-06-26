@@ -1,47 +1,61 @@
 package gui;
 
-import java.lang.reflect.Method;
-
+import world.World;
 import core.Main;
-import core.Update;
+import core.SaveHandler;
 
 public class GuiMenuMain extends Gui {
 	
-	private GuiButton buttonStart;
+	SaveHandler saves = new SaveHandler();
+	World world = new World();
+	
+	private GuiButton buttonStartNew;
+	private GuiButton buttonStartLoad;
 	private GuiButton buttonOptions;
 	private GuiButton buttonUpdate;
 	private GuiButton buttonExit;
 	
 	public GuiMenuMain() {
-		buttonStart = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 - 40, 100, 20, 1, 1, 1, "START");
-		buttonStart.setActivation(new Runnable() {
+		buttonStartNew = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 - 40, 100, 20, 1, 1, 1, "NEW");
+		buttonStartNew.setActivation(new Runnable() {
 			public void run() {
-				Main.gameState = Main.GameState.GAME_MAIN;
+				//setCurrentGui(new GuiMenuCharCreation());
+				world.loadNew();
+				setCurrentGui(null); 
 			}
 		});
 		
-		buttonOptions = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 10, 100, 20, 1, 1, 1, "OPTIONS");
+		buttonStartLoad = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 - 0, 100, 20, 1, 1, 1, "LOAD");
+		buttonStartLoad.setActivation(new Runnable() {
+			public void run() {
+				saves.load("res/save/save.txt");
+				setCurrentGui(null);
+				Main.isPaused = false;
+			}
+		});
+		
+		buttonOptions = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 40, 100, 20, 1, 1, 1, "OPTIONS");
 		buttonOptions.setActivation(new Runnable() {
 			public void run() {
-				Main.gameState = Main.GameState.MENU_OPTIONS;
+				setCurrentGui(new GuiMenuOptions());
 			}
 		});
 		
-		buttonUpdate = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 60, 100, 20, 1, 1, 1, "UPDATE");
+		buttonUpdate = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 80, 100, 20, 1, 1, 1, "UPDATE");
 		buttonUpdate.setActivation(new Runnable() {
 			public void run() {
-				Main.gameState = Main.GameState.MENU_UPDATE;
+				setCurrentGui(new GuiMenuUpdate());
 			}
 		});
 		
-		buttonExit = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 110, 100, 20, 1, 1, 1, "EXIT");
+		buttonExit = new GuiButton(Main.screenWidth / 2 - 50, Main.screenHeight / 2 + 120, 100, 20, 1, 1, 1, "EXIT");
 		buttonExit.setActivation(new Runnable() {
 			public void run() {
 				System.exit(0);
 			}
 		});
 		
-		addComponents(buttonStart, buttonOptions, buttonUpdate, buttonExit);
-		setComponentActive(buttonStart);
+		addComponents(buttonStartNew, buttonStartLoad, buttonOptions, buttonUpdate, buttonExit);
+		setComponentActive(buttonStartNew);
 	}
 }

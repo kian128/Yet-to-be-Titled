@@ -4,9 +4,11 @@ import static org.lwjgl.opengl.GL11.*;
 
 import org.lwjgl.input.Mouse;
 
+import world.World;
+
 public class Camera {
 	
-	public static float rotX = 65;
+	public static float rotX = 55;
 	public static float rotY = 0;
 	
 	public float zoomSpeed = 0.05f;
@@ -22,20 +24,25 @@ public class Camera {
 	public boolean canZoom = true;
 	
 	public void translate() {
+		if(Main.player.getY() > World.baseHeight && rotX <= 90) {
+			rotX = 55 + (Main.player.getY() - World.baseHeight) * 4.0f;
+		}
+		if(rotX > 90) rotX = 90;
+		
 		glLoadIdentity();
 		glPushAttrib(GL_TRANSFORM_BIT);
-		glRotatef(rotX, 1, 0, 0);
-		glRotatef(rotY, 0, 1, 0);
-		glRotatef(0, 0, 0, 1);
-			if(isFollowingHorizontal && isFollowingVertical) {
-				glTranslatef(-(Main.player.getX() + Main.player.getXWidth() / 2) * scaleX, -(Main.player.getY() + Main.player.getXWidth() / 2) * scaleY, -(Main.player.getZ() + Main.player.getXWidth() / 2) * scaleZ);
-			} else if(isFollowingHorizontal) {
-				glTranslatef(-(Main.player.getX() + Main.player.getXWidth() / 2) * scaleX, 0, -(Main.player.getZ() + Main.player.getXWidth() / 2) * scaleZ);
-			} else if(isFollowingVertical) {
-				glTranslatef(0, -(Main.player.getY() + Main.player.getXWidth() / 2) * scaleY, 0);
-			} else {
-				glTranslatef(0, 0, 0);
-			}
+			glRotatef(rotX, 1, 0, 0);
+			glRotatef(rotY, 0, 1, 0);
+			glRotatef(0, 0, 0, 1);
+				if(isFollowingHorizontal && isFollowingVertical) {
+					glTranslatef(-(Main.player.getX() + Main.player.getXWidth() / 2) * scaleX, -(Main.player.getY() + Main.player.getXWidth() / 2) * scaleY, -(Main.player.getZ() + Main.player.getXWidth() / 2) * scaleZ);
+				} else if(isFollowingHorizontal) {
+					glTranslatef(-(Main.player.getX() + Main.player.getXWidth() / 2) * scaleX, 0, -(Main.player.getZ() + Main.player.getXWidth() / 2) * scaleZ);
+				} else if(isFollowingVertical) {
+					glTranslatef(0, -(Main.player.getY() + Main.player.getXWidth() / 2) * scaleY, 0);
+				} else {
+					glTranslatef(0, 0, 0);
+				}
 			glScalef(scaleX, scaleY, scaleZ);
         glPopAttrib();
 	}

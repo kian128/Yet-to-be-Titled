@@ -2,13 +2,15 @@ package entity;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import core.World;
+import world.World;
+
 
 public class Entity {
 	
 	protected float x, y, z;
 	protected float xWidth, height, zWidth;
-	protected boolean isCollidable;
+	protected float rot;
+	public boolean isCollidable;
 	
 	private float lastY;
 	
@@ -93,6 +95,16 @@ public class Entity {
 		return false;
 	}
 	
+	public void rotate(float rot) {
+		this.rot += rot;
+	}
+	public void setRotation(float rot) {
+		this.rot = rot;
+	}
+	public float getRotation() {
+		return rot;
+	}
+	
 	public void setX(float x) {
 		this.x = x;
 	}
@@ -101,6 +113,16 @@ public class Entity {
 	}
 	public void setZ(float z) {
 		this.z = z;
+	}
+	
+	public void setXWidth(float xWidth) {
+		this.xWidth = xWidth;
+	}
+	public void setHeight(float height) {
+		this.height = height;
+	}
+	public void setZWidth(float zWidth) {
+		this.zWidth = zWidth;
 	}
 	
 	public float getX() {

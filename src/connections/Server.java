@@ -1,68 +1,97 @@
 package connections;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.ArrayList;
 
-import org.lwjgl.opengl.Display;
+public class Server {
+	
+	public static void main(String args[]) {
+		new ServerThread().start();
+	}
+}
 
-import core.Main;
-import core.World;
-
-public class Server extends Thread {
+class ServerThread extends Thread {
 	
-	private int port = 1234;
-	private String ip = "25.22.95.89";
-	private int maxQueueLength = 4; //max queue length for incoming connections
+	private DatagramSocket socket = null;
+	private DatagramPacket packet = null;
 	
-	private DataInputStream in;
-	private DataOutputStream out;
+	private boolean running = true;
 	
-	public Server() throws IOException {
-		ServerSocket server = new ServerSocket(port, maxQueueLength, InetAddress.getByName(ip));
-		System.out.println("Server established on port " + port + " with ip " + ip);
-		
-		System.out.println("Waiting for incoming connection...");
-		Socket socket = server.accept();
-		System.out.println("Connection found with ip " + socket.getInetAddress().getHostAddress());
-			
-		in = new DataInputStream(socket.getInputStream());
-		out = new DataOutputStream(socket.getOutputStream());
+	private ArrayList<Player> playerList = new ArrayList<Player>();
+	
+	public ServerThread() {
+		try {
+			socket = new DatagramSocket(1234, InetAddress.getByName("25.22.95.89"));
+			System.out.println("Started server on port " + socket.getLocalPort());
+		} catch(Exception e) {
+			e.printStackTrace();
+			running = false;
+		}
 	}
 	
 	public void run() {
-		while(true) {
+		while(running) {
 			try {
-				Main.npc.setX(in.readFloat());
-				Main.npc.setY(in.readFloat());
-				Main.npc.setZ(in.readFloat());
-				
-				out.writeFloat(Main.player.getX());
-				out.writeFloat(Main.player.getY());
-				out.writeFloat(Main.player.getZ());
-			}catch(Exception e) {
+				receivePacket();
+				sendPacket();
+			} catch(Exception e) {
 				e.printStackTrace();
+				running = false;
 			}
-		} 
-	}
-	
-	public static void main(String args[]) throws IOException {
-		Server server = new Server();
-		
-		Main main = new Main();
-		World.spawnPoint.setX(2);
-		main.init();
-		
-		server.start();
-		
-		while(!Display.isCloseRequested()) {
-			main.render();
-			main.update();
 		}
 		
-		main.exit();
+		socket.close();
+	}
+	
+	private void receivePacket() throws IOException {
+		byte[] buf = new byte[256];
+		packet = new DatagramPacket(buf, buf.length);
+		socket.receive(packet);
+		
+		String received = new String(packet.getData(), 0, packet.getLength());
+		
+		if(received.split(" ")[0].equals("join")) {
+			playerList.add(new Player(received.split(" ")[1], 0, 0));
+			System.out.println(received.split(" ")[1] + " joined");
+		}
+		
+		if(received.split(" ")[0].equals("leave")) {
+			for(int n = 0; n < playerList.size(); n++) {
+				if(playerList.get(n).name.equals(received.split(" ")[1])) {
+					playerList.remove(n);
+					System.out.println(received.split(" ")[1] + " left");
+				}
+			}
+		}
+		
+		if(received.split(" ")[0].equals("position")) {
+			for(int n = 0; n < playerList.size(); n++) {
+				if(playerList.get(n).name.equals(received.split(" ")[1])) {
+					playerList.get(n).x = Integer.parseInt(received.split(" ")[2]);
+					playerList.get(n).y = Integer.parseInt(received.split(" ")[3]);
+				}
+			}
+		}
+		
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendPacket() throws IOException {
+		String message = "";
+		for(int n = 0; n < playerList.size(); n++) {
+			message += (playerList.get(n).name + " " + playerList.get(n).x + " " + playerList.get(n).y + "/");
+		}
+		byte[] buf = message.getBytes();
+		
+		InetAddress address = packet.getAddress();
+		int port = packet.getPort();
+		packet = new DatagramPacket(buf, buf.length, address, port);
+		socket.send(packet);
 	}
 }

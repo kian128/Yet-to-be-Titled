@@ -14,7 +14,7 @@ import java.util.zip.ZipInputStream;
 public class Update extends Thread{
 	
 	public static String status;
-	public static String url = "https://dl.dropboxusercontent.com/u/77565661/Yet%20to%20be%20titled/games.zip";
+	public static String url = "https://dl.dropboxusercontent.com/u/77565661/Yet%20to%20be%20titled/game.zip";
 	
 	public void run() {
 		try {
@@ -40,6 +40,9 @@ public class Update extends Thread{
 			
 			status = "Extracting...";
 			extract("game.zip");
+			status = "Successful! Shutting down...";
+			
+			Thread.sleep(1500);
 			
 			System.exit(0);
 		} catch (Exception e) {

@@ -16,7 +16,21 @@ public class Gui {
 	public GuiComponent componentActive;
 	private int componentActiveId;
 	
-	private String sliderId;
+	public static Gui guiCurrent;
+	
+	public static void updateGui(long delta) {
+		if(guiCurrent != null) {
+			guiCurrent.update(delta);
+		}
+	}
+	
+	public static void setCurrentGui(Gui gui) {
+		guiCurrent = gui;
+		
+		if(gui == null) {
+			Main.isPaused = false;
+		}
+	}
 	
 	public void addComponents(GuiComponent ... components) {
 		this.components = components;
@@ -24,17 +38,17 @@ public class Gui {
 		this.componentActive.isActive = true;
 	}
 	
-	public void update() {
-		Main.guiCurrent = this;
+	public void update(long delta) {
+		guiCurrent = this;
 	
+		this.renderShapes();
 		for(int n = 0; n < components.length; n++) {
-			components[n].renderShapes();
-			this.renderShapes();
+			components[n].renderShapes(delta);
 		}
 		
+		this.renderText();
 		for(int n = 0; n < components.length; n++) {
-			components[n].renderText();
-			this.renderText();
+			components[n].renderText(delta);
 		}
 	}
 	
@@ -86,6 +100,24 @@ public class Gui {
 	public void activateSliderDown() {
 		if(componentActive.getClass() == GuiSlider.class) {
 			componentActive.activateSliderDown();
+		}
+	}
+	
+	public void appendString(String s) {
+		if(componentActive.getClass() == GuiTextbox.class) {
+			componentActive.appendString(s);
+		}
+	}
+	
+	public void shortenString(int n) {
+		if(componentActive.getClass() == GuiTextbox.class) {
+			componentActive.shortenString(n);
+		}
+	}
+	
+	public void clearString() {
+		if(componentActive.getClass() == GuiTextbox.class) {
+			componentActive.clearString();
 		}
 	}
 }

@@ -53,9 +53,12 @@ public class BrowserApplet extends Applet {
 					e.printStackTrace();
 					return;
 				}
+				Timing timing = new Timing();
+				
 				while(running) {
-					main.render();
-					main.update();
+					long delta = timing.getDelta();
+					main.render(delta);
+					main.update(delta);
 				}
 				main.exit();
 			}

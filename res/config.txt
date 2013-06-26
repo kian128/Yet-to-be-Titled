@@ -1,10 +1,12 @@
-#Sat May 04 17:50:07 BST 2013
+#Wed Jun 26 22:33:53 BST 2013
 resizable=false
 zNear=0.01
 renderFar=300
-fov=55
+fov=45
 vsync=false
+lockedFramerate=false
+lockedfps=true
 zFar=100.0
-cameraDistance=20.0
-maxfps=120
+cameraDistance=19.0
+maxfps=80
 renderNear=0.01

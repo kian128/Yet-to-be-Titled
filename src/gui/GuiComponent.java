@@ -18,10 +18,10 @@ public class GuiComponent {
 		this.blue = blue;
 	}
 	
-	protected void renderShapes() {
+	protected void renderShapes(long delta) {
 	}
 	
-	protected void renderText() {
+	protected void renderText(long delta) {
 	}
 	
 	protected void activateButton() {
@@ -31,5 +31,19 @@ public class GuiComponent {
 	}
 	
 	protected void activateSliderDown() {
+	}
+	
+	
+	public void appendString(String s) {
+	}
+	
+	public void shortenString(int n) {
+	}
+	
+	public void clearString() {
+	}
+	
+	public String getText() {
+		return null;
 	}
 }

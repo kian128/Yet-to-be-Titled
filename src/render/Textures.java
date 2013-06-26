@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
@@ -15,12 +16,16 @@ import org.newdawn.slick.opengl.PNGDecoder.Format;
 
 public class Textures {
 	
+	public static ArrayList<Integer> textureList = new ArrayList<Integer>();
+	
 	public static int TEX_GRASS;
 	public static int TEX_CRATE;
+	public static int TEX_WOOD;
 	
 	public void initTextures() {
 		TEX_GRASS = loadTexture("res/textures/grass.png");
 		TEX_CRATE = loadTexture("res/textures/crate.png");
+		TEX_WOOD = loadTexture("res/textures/wood.png");
 	}
 	
 	public int loadTexture(String fileDir) {
@@ -48,6 +53,7 @@ public class Textures {
                Display.destroy();
                System.exit(1);
            }
+		textureList.add(texture);
 		return texture;
 	}
 }
